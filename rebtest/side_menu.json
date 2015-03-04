@@ -1,0 +1,97 @@
+
+{
+
+  "site":"ID",
+
+
+
+  "array": [
+    {
+      "Title": "Home",
+      "Url": "/app",
+      "id": 0
+      
+
+      
+      
+    },
+    {
+      "Title": "Markets",
+      "Url": "/markets",
+      "id": 1
+    },
+    {
+      "Title": "Regulation",
+      "Url": "/regulation",
+      "id": 2
+	  
+	    
+    },
+    {
+      "Title": "Super",
+      "Url": "/superannuation",
+      "id": 3
+    },
+    {
+      "Title": "M&A",
+      "Url": "/mergers-acquisitions",
+      "id": 4
+
+    },
+       
+
+    {
+      "Title": "Tech",
+      "Url": "/technology",
+      "id": 6
+	  	   
+    },
+    {
+      "Title": "Appointments",
+      "Url": "/appointments",
+      "id": 7
+    },
+        {
+      "Title": "Analysis",
+      "Url": "/analysis",
+      "id": 8
+    },
+        {
+      "Title": "Video",
+      "Url": "/video",
+      "id": 9
+    },
+	    {
+      "Title": "InvestorWeekly",
+      "Url": "/",
+      "id": 10,
+	  "child":[ 
+			 {
+			  "Title": "News",
+			  "Url": "/investor-weekly/news",
+			  "id": 0
+			},
+			{
+			  "Title": "Head to Head",
+			  "Url": "/investor-weekly/head-to-head",
+			  "id": 1
+			},
+			{
+			  "Title": "Mandates and Money Movements",
+			  "Url": "/investor-weekly/mandates-and-money-movements",
+			  "id": 2
+			},
+			{
+			  "Title": "Asset Spotlight",
+			  "Url": "/investor-weekly/asset-spotlight",
+			  "id": 3
+			},
+			{
+			  "Title": "Opinion",
+			  "Url": "/investor-weekly/opinion",
+			  "id": 4
+			}
+	  ]
+    }
+  ]
+}

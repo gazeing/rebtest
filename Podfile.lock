@@ -1,0 +1,47 @@
+PODS:
+  - AFNetworking (2.5.1):
+    - AFNetworking/NSURLConnection (= 2.5.1)
+    - AFNetworking/NSURLSession (= 2.5.1)
+    - AFNetworking/Reachability (= 2.5.1)
+    - AFNetworking/Security (= 2.5.1)
+    - AFNetworking/Serialization (= 2.5.1)
+    - AFNetworking/UIKit (= 2.5.1)
+  - AFNetworking/NSURLConnection (2.5.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/NSURLSession (2.5.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (2.5.1)
+  - AFNetworking/Security (2.5.1)
+  - AFNetworking/Serialization (2.5.1)
+  - AFNetworking/UIKit (2.5.1):
+    - AFNetworking/NSURLConnection
+    - AFNetworking/NSURLSession
+  - Google-Mobile-Ads-SDK (7.0.0)
+  - googleplus-ios-sdk (1.7.1)
+  - GSIndeterminateProgressBar (0.1.0)
+  - RESideMenu (4.0.7)
+  - SDWebImage (3.7.1):
+    - SDWebImage/Core (= 3.7.1)
+  - SDWebImage/Core (3.7.1)
+
+DEPENDENCIES:
+  - AFNetworking (~> 2.0)
+  - Google-Mobile-Ads-SDK (~> 7.0)
+  - googleplus-ios-sdk (~> 1.7.1)
+  - GSIndeterminateProgressBar
+  - RESideMenu (~> 4.0.4)
+  - SDWebImage (~> 3.6)
+
+SPEC CHECKSUMS:
+  AFNetworking: 8bee59492a6ff15d69130efa4d0dc67e0094a52a
+  Google-Mobile-Ads-SDK: 55632bafa382a0987a4cbdefdfea362e24cbe814
+  googleplus-ios-sdk: b0f6cd8aa29c51d0048cace8dc3bd8f4ae0806bb
+  GSIndeterminateProgressBar: a2a3d4878a3519498e5841680bece0194fac7b53
+  RESideMenu: a9c1cd2e64e60e1d3166ddac01a83e215a0e4d30
+  SDWebImage: 116e88633b5b416ea0ca4b334a4ac59cf72dd38d
+
+COCOAPODS: 0.35.0
