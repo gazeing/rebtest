@@ -1006,14 +1006,17 @@
 
 -(void)navigationToTestPage:(NSString* )articleId
 {
-    [self.webView stringByEvaluatingJavaScriptFromString:@"document.open();document.close()"];
     
     
+    if(![articleId isEqualToString:self.articleid]){
+        
+        [self.webView stringByEvaluatingJavaScriptFromString:@"document.open();document.close()"];
     
-    HtmlContentDownloader *downloader = [[HtmlContentDownloader alloc] init];
-    downloader.delegate = self;
-    [downloader startDownload];
-    self.articleid = articleId;
+        HtmlContentDownloader *downloader = [[HtmlContentDownloader alloc] init];
+        downloader.delegate = self;
+        [downloader startDownload];
+        self.articleid = articleId;
+    }
     
 }
 
