@@ -9,6 +9,7 @@
 #import "HtmlContentDownloader.h"
 #import "AFNetworking.h"
 #import "Reachability.h"
+#import "Constants.h"
 
 @implementation HtmlContentDownloader
 
@@ -110,17 +111,81 @@
     dispatch_group_t  group = dispatch_group_create();
     
     
+    //try to get prefix from content.html link
+    NSString* prefix = BASE_URL;
+    
+    for (NSString* contentHtmllink in downloadList) {
+        NSArray *parts = [contentHtmllink componentsSeparatedByString:@"/"];
+        NSString *filename = [parts lastObject];
+        NSRange replaceRange = [contentHtmllink rangeOfString:filename];
+        if ([filename isEqualToString:@"content.html"]) {
+            prefix =  [contentHtmllink stringByReplacingCharactersInRange:replaceRange withString:@""];
+        }
+    }
+    
+    
     
     for (NSString* link in downloadList) {
-        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:link]];
+        NSURL *linkUrl = [NSURL URLWithString:link];
+        NSURLRequest *request = [NSURLRequest requestWithURL:linkUrl];
         
         NSArray *parts = [link componentsSeparatedByString:@"/"];
         NSString *filename = [parts lastObject];
+        
+        if ([self string:link hasPrefix:prefix caseInsensitive:NO]) {
+            NSRange replaceRangePrefix = [link rangeOfString:prefix];
+            filename =  [link stringByReplacingCharactersInRange:replaceRangePrefix withString:@""];
+        
+  
+        }
+        
+
+        
         
         AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
         
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *path = [[paths objectAtIndex:0] stringByAppendingPathComponent:filename];
+        
+        
+        //if path not there create path
+        if ([filename containsString:@"/"]) {
+            NSArray *fileparts = [filename componentsSeparatedByString:@"/"];
+            NSString* realname = [fileparts lastObject];
+            NSRange dirrange = [filename rangeOfString:realname];
+            NSString* dir = [filename stringByReplacingCharactersInRange:dirrange withString:@""];
+            NSString* fulldir = [[paths objectAtIndex:0] stringByAppendingPathComponent:dir];
+            
+            BOOL isDir;
+            BOOL exists = [[NSFileManager defaultManager]  fileExistsAtPath:fulldir isDirectory:&isDir];
+            if (exists) {
+                /* file exists */
+                NSLog(@"%@ is exist",fulldir);
+                if (isDir) {
+                    /* file is a directory */
+                    NSLog(@"%@ is dir",fulldir);
+                }
+            }
+            else{
+                
+                   NSLog(@"%@ needs created",fulldir);
+                
+                
+                
+                
+                NSError * error = nil;
+                [[NSFileManager defaultManager] createDirectoryAtPath:fulldir
+                                          withIntermediateDirectories:YES
+                                                           attributes:nil
+                                                                error:&error];
+                if (error != nil) {
+                    NSLog(@"error creating directory: %@", error);
+                    //..
+                }
+            }
+            
+        }
+        
         operation.outputStream = [NSOutputStream outputStreamToFileAtPath:path append:NO];
         dispatch_group_enter(group);
         
@@ -129,6 +194,7 @@
             dispatch_group_leave(group);
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"fail to downloaded file to %@", path);
             NSLog(@"Error: %@", error);
             dispatch_group_leave(group);
         }];
@@ -147,6 +213,18 @@
     });
 }
 
+- (BOOL) string:(NSString *)string
+      hasPrefix:(NSString *)prefix
+caseInsensitive:(BOOL)caseInsensitive {
+    
+    if (!caseInsensitive)
+        return [string hasPrefix:prefix];
+    
+    const NSStringCompareOptions options = NSAnchoredSearch|NSCaseInsensitiveSearch;
+    NSRange prefixRange = [string rangeOfString:prefix
+                                        options:options];
+    return prefixRange.location == 0 && prefixRange.length > 0;
+}
 
 - (void) loadLocalHtml:(UIWebView *)webview HtmlPath:(NSString* )htmlpath ArticleID:(NSString*)articleID
 {
