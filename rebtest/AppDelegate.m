@@ -38,11 +38,7 @@
     
     self.list = [[NSMutableArray alloc] init];
     
-    
-    NSURLCache *sharedCache = [[NSURLCache alloc] initWithMemoryCapacity:0
-                                                            diskCapacity:0
-                                                                diskPath:nil];
-    [NSURLCache setSharedURLCache:sharedCache];
+
     
     
     //added 04/MAR/2014

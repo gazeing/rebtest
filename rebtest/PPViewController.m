@@ -371,8 +371,8 @@
         
         if (self.firstArticle.link != NULL) {
             
-            NSString *firstlink = self.firstArticle.link;
-            [self openWebView:firstlink];
+//            NSString *firstlink = self.firstArticle.link;
+            [self openWebView:self.firstArticle];
         }
     }
 }
