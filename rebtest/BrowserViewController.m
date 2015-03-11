@@ -1014,8 +1014,11 @@
     
         HtmlContentDownloader *downloader = [[HtmlContentDownloader alloc] init];
         downloader.delegate = self;
-        [downloader startDownload];
+        
+
+//        [downloader startDownload];
         self.articleid = articleId;
+         [((HtmlContentDownloader *)downloader) loadLocalHtml:self.webView HtmlPath:@"content.html" ArticleID:self.articleid];
     }
     
 }

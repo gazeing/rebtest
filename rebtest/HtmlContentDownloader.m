@@ -237,20 +237,116 @@ caseInsensitive:(BOOL)caseInsensitive {
     
     NSLog(@"fullFilepath =  %@",fullFilepath);
     
-//    // Load the file, assuming it exists
-//    NSError *err;
-//    NSString *html = [NSString stringWithContentsOfFile:fullFilepath encoding:NSUTF8StringEncoding error:&err];
-//    
-//    // Load the html string into the web view with the base url
-//    [webview loadHTMLString:html baseURL:[NSURL URLWithString:fullFilepath]];
     
-    NSString *absoluteURLwithQueryString = [fullFilepath stringByAppendingString: [NSString stringWithFormat:@"?id=%@",articleID]];
+    Boolean isUsingAngular = NO;
+
     
-    NSURL *finalURL = [NSURL URLWithString: absoluteURLwithQueryString];
+    if (isUsingAngular) {
+        NSString *absoluteURLwithQueryString = [fullFilepath stringByAppendingString: [NSString stringWithFormat:@"?id=%@",articleID]];
+        
+        NSURL *finalURL = [NSURL URLWithString: absoluteURLwithQueryString];
+        
+        NSURLRequest *request = [NSURLRequest requestWithURL:finalURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:(NSTimeInterval)10.0 ];
+        
+        [webview loadRequest:request];
+    }else{
+        
+            // get full text from api and swap it in template
+        
+        NSString *apiLink =[NSString stringWithFormat:@"http://test.rebonline.com.au?option=com_ajax&format=json&plugin=getcontentcategoryuser&model=content&limit=1&art_id=%@",articleID];
+        
+        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+//        manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+//        [manager.requestSerializer setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+        [manager GET:apiLink parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            NSLog(@"JSON: %@", responseObject);
+            NSString* fulltext = [self parseFullText:responseObject];
+            
+
+            [self loadfulltext:fulltext Webview:webview TemplatePath:fullFilepath];
+            
+
+            [self saveArticleJsonFile:fulltext ArticleID:articleID];
+            
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"load fulltext json Error: %@", error);
+            
+             NSString* fulltext = [self loadArticleJsonFile:articleID];
+            if (fulltext != nil) {
+                [self loadfulltext:fulltext Webview:webview TemplatePath:fullFilepath];
+            }
+            
+            
+                    }];
+
+        
+  
+        
+        
+        
+
+    }
     
-    NSURLRequest *request = [NSURLRequest requestWithURL:finalURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:(NSTimeInterval)10.0 ];
+
+}
+
+-(void) loadfulltext:(NSString*) fulltext Webview:(UIWebView*) webview TemplatePath:(NSString* )fullFilepath
+{
+    NSError *err;
     
-    [webview loadRequest:request];
+    NSString *templatehtml = [NSString stringWithContentsOfFile:fullFilepath encoding:NSUTF8StringEncoding error:&err];
+    
+    NSRange replaceRange = [templatehtml rangeOfString:@"{{articles[0].fulltext}}"];
+    
+    NSString *html =  [templatehtml stringByReplacingCharactersInRange:replaceRange withString:fulltext];
+    
+    
+    
+    // Load the html string into the web view with the base url
+    //            [webview loadHTMLString:html baseURL:[NSURL URLWithString:fullFilepath]];
+    [webview loadHTMLString:html baseURL:nil];
+}
+
+-(NSString*) parseFullText:(id)json
+{
+    
+    
+    NSDictionary *jsonDict = (NSDictionary *) json;
+    NSArray *array = [jsonDict objectForKey:@"data"];
+    
+    if (array.count <1) {
+    
+        return @"";
+    }
+    NSArray *innerarray = [array lastObject];
+    NSDictionary *innerobj = [innerarray lastObject];
+
+    NSString* text  = [innerobj objectForKey:@"fulltext"];
+            
+
+    
+    
+    return text;
+}
+
+-(void) saveArticleJsonFile:(NSString*) json ArticleID:(NSString*) articleid
+{
+    [[NSUserDefaults standardUserDefaults] setValue:json forKey:articleid];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+-(NSString*) loadArticleJsonFile:(NSString*) articleid
+{
+    NSString *dataString= [[NSUserDefaults standardUserDefaults]
+                           objectForKey:articleid];
+    
+//    NSError *jsonError;
+//    NSData *objectData = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+//    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:objectData
+//                                                         options:NSJSONReadingMutableContainers
+//                                                           error:&jsonError];
+    
+    return dataString;
 }
 
 @end
