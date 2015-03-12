@@ -226,7 +226,7 @@ caseInsensitive:(BOOL)caseInsensitive {
     return prefixRange.location == 0 && prefixRange.length > 0;
 }
 
-- (void) loadLocalHtml:(UIWebView *)webview HtmlPath:(NSString* )htmlpath ArticleID:(NSString*)articleID
+- (void) loadLocalHtml:(UIWebView *)webview HtmlPath:(NSString* )htmlpath Article:(Article*)article
 {
     // Get the app Documents path
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -242,7 +242,7 @@ caseInsensitive:(BOOL)caseInsensitive {
 
     
     if (isUsingAngular) {
-        NSString *absoluteURLwithQueryString = [fullFilepath stringByAppendingString: [NSString stringWithFormat:@"?id=%@",articleID]];
+        NSString *absoluteURLwithQueryString = [fullFilepath stringByAppendingString: [NSString stringWithFormat:@"?id=%@",article.articleId]];
         
         NSURL *finalURL = [NSURL URLWithString: absoluteURLwithQueryString];
         
@@ -253,27 +253,28 @@ caseInsensitive:(BOOL)caseInsensitive {
         
             // get full text from api and swap it in template
         
-        NSString *apiLink =[NSString stringWithFormat:@"http://test.rebonline.com.au?option=com_ajax&format=json&plugin=getcontentcategoryuser&model=content&limit=1&art_id=%@",articleID];
+        NSString *apiLink =[NSString stringWithFormat:@"http://test.rebonline.com.au?option=com_ajax&format=json&plugin=getcontentcategoryuser&model=content&limit=1&art_id=%@",article.articleId];
         
         AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
 //        manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
 //        [manager.requestSerializer setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
         [manager GET:apiLink parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
             NSLog(@"JSON: %@", responseObject);
-            NSString* fulltext = [self parseFullText:responseObject];
+            NSString* fulltext = [NSString stringWithFormat:@"%@%@",article.introtext,[self parseFullText:responseObject]];
+            
             
 
-            [self loadfulltext:fulltext Webview:webview TemplatePath:fullFilepath];
+            [self loadfulltext:fulltext Webview:webview TemplatePath:fullFilepath Article:article];
             
 
-            [self saveArticleJsonFile:fulltext ArticleID:articleID];
+            [self saveArticleJsonFile:fulltext ArticleID:article.articleId];
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"load fulltext json Error: %@", error);
             
-             NSString* fulltext = [self loadArticleJsonFile:articleID];
+             NSString* fulltext = [self loadArticleJsonFile:article.articleId];
             if (fulltext != nil) {
-                [self loadfulltext:fulltext Webview:webview TemplatePath:fullFilepath];
+                [self loadfulltext:fulltext Webview:webview TemplatePath:fullFilepath Article:article];
             }
             
             
@@ -290,21 +291,25 @@ caseInsensitive:(BOOL)caseInsensitive {
 
 }
 
--(void) loadfulltext:(NSString*) fulltext Webview:(UIWebView*) webview TemplatePath:(NSString* )fullFilepath
+-(void) loadfulltext:(NSString*) fulltext Webview:(UIWebView*) webview TemplatePath:(NSString* )fullFilepath Article:(Article*) article
 {
     NSError *err;
     
     NSString *templatehtml = [NSString stringWithContentsOfFile:fullFilepath encoding:NSUTF8StringEncoding error:&err];
     
-    NSRange replaceRange = [templatehtml rangeOfString:@"{{articles[0].fulltext}}"];
+    NSRange replaceRange = [templatehtml rangeOfString:@"<div ng-bind-html-unsafe=\"articles[0].fulltext\">{{articles[0].fulltext}}</div>"];
     
     NSString *html =  [templatehtml stringByReplacingCharactersInRange:replaceRange withString:fulltext];
     
+    //add title
+    NSRange replaceRangeTitle = [templatehtml rangeOfString:@"{{articles[0].title}}"];
+    
+    NSString *htmlWithTitle =[html stringByReplacingCharactersInRange:replaceRangeTitle withString:article.title];
     
     
     // Load the html string into the web view with the base url
-    //            [webview loadHTMLString:html baseURL:[NSURL URLWithString:fullFilepath]];
-    [webview loadHTMLString:html baseURL:nil];
+    [webview loadHTMLString:htmlWithTitle baseURL:[NSURL URLWithString:fullFilepath]];
+//    [webview loadHTMLString:html baseURL:nil];
 }
 
 -(NSString*) parseFullText:(id)json

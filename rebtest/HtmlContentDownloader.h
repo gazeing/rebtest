@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
+#import "Article.h"
 
 // declare our class
 @class HtmlContentDownloader;
@@ -38,6 +39,6 @@
 - (id)   initWithLoadUrl:(NSString *) loadListJsonUrl;
 
 - (void) startDownload;
-- (void) loadLocalHtml:(UIWebView *)webview HtmlPath:(NSString* )htmlpath ArticleID:(NSString*)articleID;
+- (void) loadLocalHtml:(UIWebView *)webview HtmlPath:(NSString* )htmlpath Article:(Article*)article;
 
 @end

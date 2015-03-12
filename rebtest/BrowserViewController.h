@@ -16,6 +16,7 @@
 #import "LoadingTimeCalculation.h"
 #import "PreCachingWebView.h"
 #import "HtmlContentDownloader.h"
+#import "Article.h"
 
 
 #define    TOOLBAR_HEIGHT 44.0
@@ -93,6 +94,8 @@
 @property (nonatomic, strong) IBOutlet UIActivityIndicatorView* spinner;
 @property (nonatomic, strong) IBOutlet UIToolbar* toolbar;
 
+@property (nonatomic, strong) HtmlContentDownloader *downloader;
+
 
 //@property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 //@property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
@@ -101,11 +104,11 @@
 - (void)close;
 - (void)navigateTo:(NSURL*)url;
 - (void)navigateToFromClearPage:(NSURL *)url;
--(void)navigationToTestPage:(NSString* )articleId;
+- (void)navigationToTestPage:(Article* )article;
 - (void)showLocationBar:(BOOL)show;
 - (void)showToolBar:(BOOL)show : (NSString *) toolbarPosition;
 - (void)setCloseButtonTitle:(NSString*)title;
--(void)shareFromSideMenu:(NSString *)index;
+- (void)shareFromSideMenu:(NSString *)index;
 
 
 - (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent;

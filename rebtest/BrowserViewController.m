@@ -766,6 +766,16 @@
     }
     
     
+    if (self.downloader == nil) {
+        self.downloader = [[HtmlContentDownloader alloc] init];
+        self.downloader.delegate = self;
+        
+        
+        [self.downloader startDownload];
+    }
+    
+
+    
 
 }
 
@@ -1004,21 +1014,17 @@
 
 #pragma mark - Local HTML testing
 
--(void)navigationToTestPage:(NSString* )articleId
+-(void)navigationToTestPage:(Article* )article
 {
     
     
-    if(![articleId isEqualToString:self.articleid]){
+    if(![article.articleId isEqualToString:self.articleid]){
         
         [self.webView stringByEvaluatingJavaScriptFromString:@"document.open();document.close()"];
     
-        HtmlContentDownloader *downloader = [[HtmlContentDownloader alloc] init];
-        downloader.delegate = self;
-        
 
-//        [downloader startDownload];
-        self.articleid = articleId;
-         [((HtmlContentDownloader *)downloader) loadLocalHtml:self.webView HtmlPath:@"content.html" ArticleID:self.articleid];
+        self.articleid = article.articleId;
+         [self.downloader loadLocalHtml:self.webView HtmlPath:@"content.html" Article:article];
     }
     
 }
@@ -1028,13 +1034,13 @@
 - (void)onDownloadFinished:(id)downloader
 {
     NSLog(@"it comes to webview");
-    [((HtmlContentDownloader *)downloader) loadLocalHtml:self.webView HtmlPath:@"content.html" ArticleID:self.articleid];
+//    [((HtmlContentDownloader *)downloader) loadLocalHtml:self.webView HtmlPath:@"content.html" ArticleID:self.articleid];
 }
 
 - (void)onNoNeedToUpdate:(id)downloader
 {
     NSLog(@"it onNoNeedToUpdate");
-    [((HtmlContentDownloader *)downloader) loadLocalHtml:self.webView HtmlPath:@"content.html" ArticleID:self.articleid];
+//    [((HtmlContentDownloader *)downloader) loadLocalHtml:self.webView HtmlPath:@"content.html" ArticleID:self.articleid];
 
 }
 

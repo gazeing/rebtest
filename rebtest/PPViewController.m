@@ -454,13 +454,13 @@
 //    [nextController navigateToFromClearPage:[NSURL URLWithString:link]];
 //     [self.wipViewController navigateToFromClearPage:[NSURL URLWithString:link]];
     
-    [self.wipViewController navigationToTestPage:a.articleId];
+    [self.wipViewController navigationToTestPage:a];
 //    CATransition* transition = [CATransition animation];
 //    transition.duration = .2;
 //    transition.type = kCATransitionPush;
 //    transition.subtype = kCATransitionFromRight;
 //    [self.view.window.layer addAnimation:transition forKey:kCATransition];
-    NSLog(@"self.navigationController=%@", self.navigationController);
+//    NSLog(@"self.navigationController=%@", self.navigationController);
     
      [(UINavigationController*)self.navigationController pushViewController:self.wipViewController  animated:YES];
     
