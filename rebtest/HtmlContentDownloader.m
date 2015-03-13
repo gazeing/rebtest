@@ -253,32 +253,41 @@ caseInsensitive:(BOOL)caseInsensitive {
         
             // get full text from api and swap it in template
         
-        NSString *apiLink =[NSString stringWithFormat:@"http://test.rebonline.com.au?option=com_ajax&format=json&plugin=getcontentcategoryuser&model=content&limit=1&art_id=%@",article.articleId];
-        
-        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-//        manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
-//        [manager.requestSerializer setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-        [manager GET:apiLink parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            NSLog(@"JSON: %@", responseObject);
-            NSString* fulltext = [NSString stringWithFormat:@"%@%@",article.introtext,[self parseFullText:responseObject]];
+        NSString* savedtext = [self loadArticleJsonFile:article.articleId];
+        if (savedtext==nil) {
             
+            NSString *apiLink =[NSString stringWithFormat:@"http://test.rebonline.com.au?option=com_ajax&format=json&plugin=getcontentcategoryuser&model=content&limit=1&art_id=%@",article.articleId];
             
-
-            [self loadfulltext:fulltext Webview:webview TemplatePath:fullFilepath Article:article];
-            
-
-            [self saveArticleJsonFile:fulltext ArticleID:article.articleId];
-            
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"load fulltext json Error: %@", error);
-            
-             NSString* fulltext = [self loadArticleJsonFile:article.articleId];
-            if (fulltext != nil) {
+            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+            //        manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+            //        [manager.requestSerializer setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+            [manager GET:apiLink parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                NSLog(@"JSON: %@", responseObject);
+                NSString* fulltext = [NSString stringWithFormat:@"%@%@",article.introtext,[self parseFullText:responseObject]];
+                
+                
+                
                 [self loadfulltext:fulltext Webview:webview TemplatePath:fullFilepath Article:article];
-            }
-            
-            
-                    }];
+                
+                
+                [self saveArticleJsonFile:fulltext ArticleID:article.articleId];
+                
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                NSLog(@"load fulltext json Error: %@", error);
+                
+                NSString* fulltext = [self loadArticleJsonFile:article.articleId];
+                if (fulltext != nil) {
+                    [self loadfulltext:fulltext Webview:webview TemplatePath:fullFilepath Article:article];
+                }
+                
+                
+            }];
+        }else
+        {
+            [self loadfulltext:savedtext Webview:webview TemplatePath:fullFilepath Article:article];
+        }
+        
+  
 
         
   
@@ -297,18 +306,43 @@ caseInsensitive:(BOOL)caseInsensitive {
     
     NSString *templatehtml = [NSString stringWithContentsOfFile:fullFilepath encoding:NSUTF8StringEncoding error:&err];
     
-    NSRange replaceRange = [templatehtml rangeOfString:@"<div ng-bind-html-unsafe=\"articles[0].fulltext\">{{articles[0].fulltext}}</div>"];
+    NSMutableString *html = [templatehtml mutableCopy];
     
-    NSString *html =  [templatehtml stringByReplacingCharactersInRange:replaceRange withString:fulltext];
+    html = [[html stringByReplacingOccurrencesOfString:@"<div ng-bind-html-unsafe=\"articles[0].fulltext\">{{articles[0].fulltext}}</div>" withString:fulltext]mutableCopy];
     
-    //add title
-    NSRange replaceRangeTitle = [templatehtml rangeOfString:@"{{articles[0].title}}"];
+    html =[[html stringByReplacingOccurrencesOfString:@"{{articles[0].title}}" withString:article.title] mutableCopy];
     
-    NSString *htmlWithTitle =[html stringByReplacingCharactersInRange:replaceRangeTitle withString:article.title];
+    html =[[html stringByReplacingOccurrencesOfString:@"{{articles[0].created_by_alias}}" withString:article.author==nil?@"Reporter":article.author] mutableCopy];
+    
+    html =[[html stringByReplacingOccurrencesOfString:@"{{articles[0].publish_up}}" withString:article.time] mutableCopy];
+    
+    html =[[html stringByReplacingOccurrencesOfString:@"articles[0].publish_up" withString:article.time] mutableCopy];
+    
+    html =[[html stringByReplacingOccurrencesOfString:@"{{articles[0].link}}" withString:[article.link stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",BASE_URL] withString:@""]] mutableCopy];
+    
+//    NSRange replaceRange = [templatehtml rangeOfString:@"<div ng-bind-html-unsafe=\"articles[0].fulltext\">{{articles[0].fulltext}}</div>"];
+//    
+//    NSString *html =  [templatehtml stringByReplacingCharactersInRange:replaceRange withString:fulltext];
+//    
+//    //add title
+//    NSRange replaceRangeTitle = [html rangeOfString:@"{{articles[0].title}}"];
+//    
+//    NSString *htmlWithTitle =[html stringByReplacingCharactersInRange:replaceRangeTitle withString:article.title];
+//    
+//    //add author
+//    NSRange replaceRangeName = [htmlWithTitle rangeOfString:@"{{articles[0].created_by_alias}}"];
+//    NSString *htmlWithName=[htmlWithTitle stringByReplacingCharactersInRange:replaceRangeName withString:article.author==nil?@"Reporter":article.author];
+//    
+//    
+//    //add time
+//    
+//    NSRange replaceRangeTime = [htmlWithName rangeOfString:@"{{articles[0].publish_up}}"];
+//    NSString *htmlWithTime = [htmlWithName stringByReplacingCharactersInRange:replaceRangeTime withString:article.time];
+    
     
     
     // Load the html string into the web view with the base url
-    [webview loadHTMLString:htmlWithTitle baseURL:[NSURL URLWithString:fullFilepath]];
+    [webview loadHTMLString:html baseURL:[NSURL URLWithString:fullFilepath]];
 //    [webview loadHTMLString:html baseURL:nil];
 }
 
