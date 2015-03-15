@@ -318,6 +318,8 @@ caseInsensitive:(BOOL)caseInsensitive {
     
     html =[[html stringByReplacingOccurrencesOfString:@"articles[0].publish_up" withString:article.time] mutableCopy];
     
+    html =[[html stringByReplacingOccurrencesOfString:@"{{articles[0].id}}" withString:article.articleId] mutableCopy];
+    
     html =[[html stringByReplacingOccurrencesOfString:@"{{articles[0].link}}" withString:[article.link stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",BASE_URL] withString:@""]] mutableCopy];
     
 //    NSRange replaceRange = [templatehtml rangeOfString:@"<div ng-bind-html-unsafe=\"articles[0].fulltext\">{{articles[0].fulltext}}</div>"];

@@ -1317,12 +1317,12 @@
         if (load_count==0) {
 //            NSLog(@"currentUrl= %@",currentURL.absoluteString);
 //            NSLog(@"preURl= %@",preURl);
-            if (![currentURL.absoluteString isEqualToString:preURl]
-                || [currentURL.absoluteString isEqualToString:baseUrl]) {
+//            if (![currentURL.absoluteString isEqualToString:preURl]
+//                || [currentURL.absoluteString isEqualToString:baseUrl]) {
                 [self startLoadingView];
                 
                 [self.timeCalculation LoadingStart];
-            }
+//            }
 
         }
         
